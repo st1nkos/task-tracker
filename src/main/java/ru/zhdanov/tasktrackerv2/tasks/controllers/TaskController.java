@@ -22,38 +22,26 @@ public class TaskController {
     private final TaskMapper taskMapper;
 
 
+
     @GetMapping("/task/{id}")
-    public TaskDto getTaskById(@PathVariable int id) {
+    public TaskDto getTaskById(@PathVariable int id){
         Task task = taskService.get(id);
 
         return taskMapper.convertToTaskDto(task);
     }
 
     @GetMapping("/tasks")
-    public List<TaskDto> getAllTaskByUserId() {
+    public List<TaskDto> getAllTaskByUserId(){
         UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         List<Task> taskList = taskService.findAllByUserId(userDetails.getUser().getId());
 
         return taskList.stream().map(taskMapper::convertToTaskDto).toList();
     }
 
-    @PatchMapping("/{id}")
-    public TaskDto update(@PathVariable int id, @RequestBody @Valid TaskDto taskDto) {
-        Task updatedTask = taskService.save(id, taskMapper.convertToTask(taskDto));
-
-        return taskMapper.convertToTaskDto(updatedTask);
-    }
-
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable int id) {
-        taskService.deleteById(id);
-    }
-
     @PostMapping("/task")
-    public TaskDto createTask(@RequestBody @Valid TaskDto taskDto) {
+    public TaskDto updateStatus(@RequestBody @Valid TaskDto taskDto){
         Task task = taskMapper.convertToTask(taskDto);
-        UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Task createdTask = taskService.saveWithUserId(task, userDetails.getUser().getId());
+        Task createdTask = taskService.saveTask(task);
         return taskMapper.convertToTaskDto(createdTask);
     }
 }

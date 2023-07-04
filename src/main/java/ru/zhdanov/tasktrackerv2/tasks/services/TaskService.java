@@ -14,17 +14,20 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-
 public class TaskService {
 
     private final TaskRepository taskRepository;
 
-    private final UserService userService;
 
     @Transactional(readOnly = true)
     public Task get(int id) {
         return taskRepository.getTaskById(id).orElseThrow(() -> new ResourceNotFoundException("Task not found"));
     }
+    @Transactional(readOnly = true)
+    public List<Task> findAll() {
+        return taskRepository.findAll();
+    }
+
     @Transactional(readOnly = true)
     public List<Task> findAllByUserId(int id) {
 
@@ -32,35 +35,31 @@ public class TaskService {
     }
 
     @Transactional
-    public Task save(int id, Task task) {
+    public Task update(int id, Task task) {
         if (task.getStatus()==null){
             task.setStatus(StatusEnum.TO_DO.getName());
         }
-        Task updatedTask = taskRepository.getTaskById(id).orElseThrow(()-> new ResourceNotFoundException("task not found"));
         task.setId(id);
-        task.setOwner(updatedTask.getOwner());
+        task.setOwner(task.getOwner());
         return taskRepository.save(task);
     }
+
     @Transactional
-    public void delete(Task task) {
-        taskRepository.delete(task);
-    }
-    @Transactional
-    public void deleteById(int id) {
+    public void delete(int id) {
         taskRepository.deleteById(id);
     }
 
     @Transactional
-    public Task saveWithUserId(Task task, int id) {
+    public Task saveTask(Task task) {
         if (task.getStatus()==null){
             task.setStatus(StatusEnum.TO_DO.getName());
         }
-
-        User user = userService.get(id);
-
-        task.setOwner(user);
-
         return taskRepository.save(task);
     }
 
+    @Transactional
+    public Task updateStatus(Task task) {
+        task.setStatus(task.getStatus());
+        return taskRepository.save(task);
+    }
 }
