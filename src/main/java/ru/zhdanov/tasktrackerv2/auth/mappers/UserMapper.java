@@ -1,13 +1,28 @@
 package ru.zhdanov.tasktrackerv2.auth.mappers;
 
-import org.mapstruct.Mapper;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.zhdanov.tasktrackerv2.auth.dto.UserDto;
 import ru.zhdanov.tasktrackerv2.auth.entity.User;
+import ru.zhdanov.tasktrackerv2.tasks.dto.TaskDto;
+import ru.zhdanov.tasktrackerv2.tasks.entity.Task;
 
-@Mapper(componentModel = "spring")
-public interface UserMapper {
+@Component
+public class UserMapper {
+    private final ModelMapper modelMapper;
 
-    UserDto toDto(User user);
+    @Autowired
+    public UserMapper(ModelMapper modelMapper) {
+        this.modelMapper = modelMapper;
+    }
 
-    User toEntity(UserDto userDto);
+
+    public UserDto convertToUserDto(User user) {
+        return modelMapper.map(user,UserDto.class);
+    }
+
+    public User convertToUser(UserDto userDto){
+        return modelMapper.map(userDto,User.class);
+    }
 }
